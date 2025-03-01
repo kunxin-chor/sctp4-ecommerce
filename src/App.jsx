@@ -3,23 +3,52 @@ import Header from "./Header"
 import ProductCard from "./ProductCard"
 import "./styles.css"
 
+import { useState } from "react"
+
 export default function App() {
+
+  // state variable are created before the `return` and
+  // not within the JSX
+  const [showNavBar, setShowNavBar] = useState(false);
+
+  const showNavBarOrNot = () => {
+    if (showNavBar) {
+      return "show"
+    } else {
+      return "";
+    }
+  }
+
+
   return (<>
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         <a className="navbar-brand" href="#">E-Shop</a>
+        {/* Hamburger Button */}
         <button
           className="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
           aria-controls="navbarNav"
           aria-expanded="false"
           aria-label="Toggle navigation"
+          onClick={()=>{
+            // toggle showNavBar 
+            // if true, set to false.
+            // if false, set to true.
+            if (showNavBar) {
+              setShowNavBar(false)
+            } else {
+              setShowNavBar(true)
+            }
+
+            // setShowNavBar(!showNavBar)
+
+          }}
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
+        {/* The nav menu */}
+        <div className={`collapse navbar-collapse ${showNavBarOrNot()}`} id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <a className="nav-link active" aria-current="page" href="#">Home</a>
