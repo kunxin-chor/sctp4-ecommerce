@@ -7,6 +7,7 @@ import ProductsPage from "./ProductsPage";
 import { Route, Switch} from 'wouter';
 
 import "./styles.css"
+import RegisterPage from "./RegisterPage";
 
 export default function App() {
   return (<>
@@ -20,6 +21,7 @@ export default function App() {
     <Switch>
       <Route path="/" component={HomePage}/>
       <Route path="/products" component={ProductsPage}/>
+      <Route path="/register" component={RegisterPage}/>
     </Switch>
 
     <footer className="bg-dark text-white text-center py-3">
