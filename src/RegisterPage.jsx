@@ -1,10 +1,19 @@
 import React from 'react';
-import { Formik, Field, Form } from 'formik'
+import { Formik, Field, Form } from 'formik';
+import { useLocation } from 'wouter';
 
 // make all functions in yup available in the `Yup` object
 import * as Yup from 'yup';
 
+// import the hook from the flash message store
+import { useFlashMessage } from './FlashMessageStore';
+
 function RegisterPage() {
+
+  // location: the current URL displayed in the browser window
+  const[ , setLocation] = useLocation();
+  // extract the showMessage function 
+  const {showMessage} = useFlashMessage();
 
 
   // create a validation schema
@@ -33,6 +42,8 @@ function RegisterPage() {
   // when the user submits the form
   const handleSubmit = (values, formikHelpers) => {
     console.log(values);
+    showMessage("Registration is successful", "success");
+    setLocation('/');
   }
 
   return (
