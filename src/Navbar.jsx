@@ -63,6 +63,9 @@ export default function Navbar() {
                             <Link className={`nav-link ${showActive("/products")}`} href="/products">Products</Link>
                         </li>
                         <li className="nav-item">
+                            <Link className={`nav-link ${showActive("/cart")}`} href="/cart">Cart</Link>
+                        </li>
+                        <li className="nav-item">
                             <Link className={`nav-link ${location === "/register" ? "active" :""}`} href="/register">Register</Link>
                         </li>
                     </ul>
