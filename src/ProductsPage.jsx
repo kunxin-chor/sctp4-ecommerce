@@ -56,7 +56,7 @@ export default function ProductsPage() {
                                 productName={p.name}
                                 price={p.price}
                                 onAddToCart={()=>{
-                                    //handleAddToCart(p);
+                                    handleAddToCart(p);
                                 }}
                             />
 

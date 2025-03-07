@@ -1,57 +1,66 @@
-import {atom, useAtom} from 'jotai';
-import Immutable from 'seamless-immutable';
+import { atom, useAtom } from 'jotai';
+import { produce } from 'immer';
 
-// create an array that is immutable
-// -> initialCart is a seamless-immutable array
-const initialCart = Immutable([
-    {
-        "id": 1,
-        "product_id": 1,
-        "quantity": 10,
-        "productName": "Organic Green Tea",
-        "price": 12.99,
-        "imageUrl": "https://picsum.photos/id/225/300/200",
-        "description": "Premium organic green tea leaves, rich in antioxidants and offering a smooth, refreshing taste."
-    }
-]);
+// Define the initial state of the cart as a regular array
+const initialCart = [
+  {
+    "id": 1,
+    "product_id": 1,
+    "quantity": 10,
+    "productName": "Organic Green Tea",
+    "price": 12.99,
+    "imageUrl": "https://picsum.photos/id/225/300/200",
+    "description": "Premium organic green tea leaves, rich in antioxidants and offering a smooth, refreshing taste."
+  },
+];
 
+// Create an atom for the cart
+export const cartAtom = atom(initialCart);
 
-export const cartAtom =atom(initialCart);
-
-// Custom hook for other components so that they can have access to the cart
+// Custom hook for cart operations
 export const useCart = () => {
+  const [cart, setCart] = useAtom(cartAtom);
 
-    const [cart, setCart] = useAtom(cartAtom);
+  // Function to calculate the total price of items in the cart
+  const getCartTotal = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
+  };
 
-    // function to calculate the total of the shopping cart
-    const getCartTotal = () => {
-        const total = 0;
-        for (let cartItem of cart) {
-            total += cartItem.price
+  const addToCart = (product) => {
+    setCart(produce((draft) => {
+      const existingItemIndex = draft.findIndex(item => item.product_id === product.id);
+      if (existingItemIndex !== -1) {
+        draft[existingItemIndex].quantity += 1;
+      } else {
+        draft.push({ ...product, product_id: product.id, quantity: 1 });
+      }
+    }));
+  };
+
+  const modifyQuantity = (product_id, quantity) => {
+    setCart(produce((draft) => {
+      const existingItemIndex = draft.findIndex(item => item.product_id === product_id);
+      if (existingItemIndex !== -1) {
+        if (quantity < 0) {
+          draft.splice(existingItemIndex, 1);
+        } else {
+          draft[existingItemIndex].quantity = quantity;
         }
-        return total;
-    }
+      }
+    }));
+  };
 
-    const addToCart = (product) => {
+  const removeFromCart = (product_id) => {
+    setCart(produce((draft) => {
+      return draft.filter(item => item.product_id !== product_id);
+    }));
+  };
 
-        // setCart function takes in one argument
-        // which is the value of the current cart 
-        setCart(currentCart => {
-            // add the product to the shopping cart
-            // -> concat means to add together or add to the back
-            return currentCart.concat({
-                ...product, // clone the product object
-                quantity: 1
-            })
-        })
-
-
-    }
-
-    return {
-        cart,
-        getCartTotal,
-        addToCart
-    }
-
-}
+  return {
+    cart,
+    getCartTotal,
+    addToCart,
+    modifyQuantity,
+    removeFromCart
+  };
+};
