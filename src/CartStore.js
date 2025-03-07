@@ -17,6 +17,7 @@ const initialCart = [
 // Create an atom for the cart
 export const cartAtom = atom(initialCart);
 
+
 // Custom hook for cart operations
 export const useCart = () => {
   const [cart, setCart] = useAtom(cartAtom);
@@ -27,19 +28,37 @@ export const useCart = () => {
   };
 
   const addToCart = (product) => {
-    setCart(produce((draft) => {
-      const existingItemIndex = draft.findIndex(item => item.product_id === product.id);
-      if (existingItemIndex !== -1) {
-        draft[existingItemIndex].quantity += 1;
-      } else {
-        draft.push({ ...product, product_id: product.id, quantity: 1 });
-      }
-    }));
+    // Define the updater explicitly as a separate function variable
+    const updateFunc = (prevCart) => {
+      const updatedCart = produce(prevCart, (draft) => {
+        const existingItemIndex = draft.findIndex(
+          (item) => item.product_id === product.id
+        );
+
+        if (existingItemIndex !== -1) {
+          draft[existingItemIndex].quantity += 1;
+        } else {
+          draft.push({
+            ...product,
+            product_id: product.id,
+            quantity: 1,
+          });
+        }
+      });
+      return updatedCart;
+    }
+   
+    // Call the explicitly defined updater
+    setCart(updateFunc);
   };
 
   const modifyQuantity = (product_id, quantity) => {
-    setCart(produce((draft) => {
-      const existingItemIndex = draft.findIndex(item => item.product_id === product_id);
+    // Explicitly define the update function separately
+    const updateFunc = (prevCart) => produce(prevCart, (draft) => {
+      const existingItemIndex = draft.findIndex(
+        (item) => item.product_id === product_id
+      );
+  
       if (existingItemIndex !== -1) {
         if (quantity < 0) {
           draft.splice(existingItemIndex, 1);
@@ -47,13 +66,26 @@ export const useCart = () => {
           draft[existingItemIndex].quantity = quantity;
         }
       }
-    }));
+    });
+  
+    // Update the cart state using the explicitly defined updater
+    setCart(updateFunc);
   };
 
   const removeFromCart = (product_id) => {
-    setCart(produce((draft) => {
-      return draft.filter(item => item.product_id !== product_id);
-    }));
+    // Explicit updater function using Immer
+    const updateFunc = (prevCart) =>
+      produce(prevCart, (draft) => {
+        const existingItemIndex = draft.findIndex(
+          (item) => item.product_id === product_id
+        );
+  
+        if (existingItemIndex !== -1) {
+          draft.splice(existingItemIndex, 1);
+        }
+      });
+  
+    setCart(updateFunc);
   };
 
   return {
