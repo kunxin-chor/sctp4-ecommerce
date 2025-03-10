@@ -29,7 +29,7 @@ export default function ProductsPage() {
         const fetchProducts = async () => {
             try {
 
-                const response = await axios.get('/products.json');
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/`);
                 setProducts(response.data);
 
             } catch (e) {
