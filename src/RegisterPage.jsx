@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik, Field, Form } from 'formik';
 import { useLocation } from 'wouter';
+import axios from 'axios';
 
 // make all functions in yup available in the `Yup` object
 import * as Yup from 'yup';
@@ -11,9 +12,9 @@ import { useFlashMessage } from './FlashMessageStore';
 function RegisterPage() {
 
   // location: the current URL displayed in the browser window
-  const[ , setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   // extract the showMessage function 
-  const {showMessage} = useFlashMessage();
+  const { showMessage } = useFlashMessage();
 
 
   // create a validation schema
@@ -35,15 +36,28 @@ function RegisterPage() {
     confirmPassword: '',
     salutation: '',
     marketingPreferences: [],
-    country:'sg'
+    country: 'sg'
   }
 
   // event handler that will be called automatically by Formik
   // when the user submits the form
-  const handleSubmit = (values, formikHelpers) => {
-    console.log(values);
-    showMessage("Registration is successful", "success");
-    setLocation('/');
+  const handleSubmit = async (values, formikHelpers) => {
+    try {
+      console.log(values);
+
+      // register the user
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, values);
+      console.log(response.data);
+      showMessage("Registration is successful", "success");
+      setLocation('/');
+
+
+ 
+    } catch (e) {
+      console.log(e);
+      showMessage("Error registering", 'danger');
+    }
+
   }
 
   return (
@@ -90,7 +104,7 @@ function RegisterPage() {
                   id="email"
                   name="password"
                 />
-                {formik.errors.password && formik.touched.password? <div className="text-danger">{formik.errors.password}</div> : null}
+                {formik.errors.password && formik.touched.password ? <div className="text-danger">{formik.errors.password}</div> : null}
               </div>
 
               <div className="mb-3">

@@ -4,6 +4,8 @@ import HomePage from "./HomePage"
 import Navbar from "./Navbar"
 import ProductsPage from "./ProductsPage";
 import ShoppingCart from "./ShoppingCart";
+import UserLogin from "./UserLogin";
+import UserProfile from "./UserProfile";
 
 import { Route, Switch} from 'wouter';
 
@@ -13,6 +15,8 @@ import RegisterPage from "./RegisterPage";
 import { useFlashMessage } from "./FlashMessageStore";
 
 import { useEffect } from "react";
+
+
 
 export default function App() {
 
@@ -60,6 +64,8 @@ export default function App() {
       <Route path="/products" component={ProductsPage}/>
       <Route path="/register" component={RegisterPage}/>
       <Route path="/cart" component={ShoppingCart}/>
+      <Route path="/login" component={UserLogin}/>
+      <Route path="/profile" component={UserProfile}/>
     </Switch>
 
     <footer className="bg-dark text-white text-center py-3">
