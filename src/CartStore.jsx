@@ -1,25 +1,82 @@
 import { atom, useAtom } from 'jotai';
 import { produce } from 'immer';
+import { useJwt } from './UserStore';
+import { useEffect, useRef } from 'react';
+import axios from 'axios';
 
 // the initial cart will be the starting value of our shopping cart
 const initialCart = [
-    {
-        "id": 1,
-        "product_id": 1,
-        "quantity": 10,
-        "productName": "Organic Green Tea",
-        "price": 12.99,
-        "imageUrl": "https://picsum.photos/id/225/300/200",
-        "description": "Premium organic green tea leaves, rich in antioxidants and offering a smooth, refreshing taste."
-    },
+
 ]
 
 // create an atom for the shopping cart (atom == shared state)
 const cartAtom = atom(initialCart);
+const cartLoadingAtom = atom(false); // store whether we are waiting for the shopping cart data to be loaded
 
 // A custom hook
 export const useCart = () => {
     const [cart, setCart] = useAtom(cartAtom);
+    // know the current value of cartLoadingAtom and be able to set it
+    const [isLoading, setIsLoading] = useAtom(cartLoadingAtom);
+    // get the fucntion that can return the current jwt
+    const {getJwt} = useJwt();
+
+    // fetch the cart from the API endpoint
+    const fetchCart = async () => {
+        const jwt = getJwt();
+        setIsLoading(true);
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}/api/cart`, {
+                    headers: {
+                        Authorization: 'Bearer ' + jwt
+                    }
+                }
+            )
+            setCart(response.data);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    // Don't use useEffect in an attempt to automatically update
+    // a shopping cart when there's change
+    // useEffect(()=>{
+    //     updateCart()
+    // }, [cart])
+
+    // update the shopping cart
+    const updateCart = async (updatedCart) => {
+        const jwt = getJwt();
+        setIsLoading(true);
+        try {
+            const updatedCartItems = updatedCart.map(item =>({
+                product_id: item.product_id,
+                quantity: item.quantity
+            }))
+            await axios.put(import.meta.env.VITE_API_URL + '/api/cart',{
+                // the API expect the cart items to be in the `cartItems` key
+                cartItems: updatedCartItems
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + jwt
+                }
+            })
+
+
+        } catch (e) {
+            console.error(e);
+
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(()=>{
+        fetchCart()
+    }, []);
 
     // Function to calculate the total price of items in the cart
     const getCartTotal = () => {
@@ -58,6 +115,8 @@ export const useCart = () => {
            
             })
 
+            // update the shopping cart in the database
+            updateCart(modifiedCart);
             // whatever is returned from the updateFuncFunction will be the new value of the shopping cart
             return modifiedCart;
 
@@ -90,12 +149,11 @@ export const useCart = () => {
                 }
 
             })
-
+            // update the shopping cart in the database
+            updateCart(modifiedCart);
             return modifiedCart;
         }
-
         setCart(updateCartFunc);
-
     }
 
     const removeFromCart = (product_id) => {
