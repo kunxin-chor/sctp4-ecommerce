@@ -1,8 +1,15 @@
 import { useCart } from "./CartStore";
+import { useJwt } from "./UserStore"; // get the JWT from the user store
+import axios from "axios";
 
 export default function ShoppingCart() {
 
-    const { cart, modifyQuantity, removeFromCart } = useCart();
+    const { cart, modifyQuantity, removeFromCart, getCartTotal } = useCart();
+    const { getJwt } = useJwt();
+
+    const handleCheckout =  async () => {
+        alert("Checkout")
+    }
 
     return (<>
         <div className="container">
@@ -46,9 +53,15 @@ export default function ShoppingCart() {
 
                     </li>
                 ))}
-
-
             </ul>
+            <div className="mt-3 text-end mb-3">
+                <h4>Total: ${getCartTotal()}</h4>
+                <button className="btn btn-primary mt-2"
+                    onClick={handleCheckout}
+                >
+                    Checkout
+                </button>
+            </div>
         </div>
 
     </>)
