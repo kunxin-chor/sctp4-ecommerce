@@ -8,7 +8,23 @@ export default function ShoppingCart() {
     const { getJwt } = useJwt();
 
     const handleCheckout =  async () => {
-        alert("Checkout")
+
+        const jwt = getJwt();
+
+        // 1. Initialize a POST Request to the endpoint
+        // we don't have to send the content of the shopping cart
+        // because we taking the content from the serverside (or backen)
+        const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/checkout`
+            , {}, {
+                headers: {
+                    Authorization: `Bearer ${jwt}`
+                }
+        })
+
+        // 2. automatically redirect the user to stripe
+        // checkout page which is the session object's url key
+        window.location = response.data.url;
     }
 
     return (<>
